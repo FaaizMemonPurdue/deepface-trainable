@@ -72,3 +72,6 @@ def test_find_with_extracted_faces():
         logger.debug(df.head())
         assert df.shape[0] > 0
     logger.info("✅ test find for extracted face input done")
+
+if __name__ == '__main__':
+    test_find_with_exact_path()

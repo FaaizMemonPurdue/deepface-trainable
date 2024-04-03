@@ -96,6 +96,6 @@ ax6 = fig.add_subplot(3, 2, 6)
 im = plt.imshow(distance_graph, interpolation="nearest", cmap=plt.cm.ocean)
 plt.colorbar()
 
-plt.show()
+plt.savefig("frh.jpg")
 
 # ----------------------------------------------

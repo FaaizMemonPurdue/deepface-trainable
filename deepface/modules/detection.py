@@ -164,12 +164,11 @@ def extract_faces(
         # normalizing the image pixels
         # what this line doing? must?
         img_pixels = image.img_to_array(current_img)
-        img_pixels = np.expand_dims(img_pixels, axis=0)
-        img_pixels /= 255  # normalize input in [0, 1]
+        # img_pixels = np.expand_dims(img_pixels, axis=0)
+        # img_pixels /= 255  # normalize input in [0, 1]
         # discard expanded dimension
         if human_readable is True and len(img_pixels.shape) == 4:
             img_pixels = img_pixels[0]
-
         resp_objs.append(
             {
                 "face": img_pixels[:, :, ::-1] if human_readable is True else img_pixels,

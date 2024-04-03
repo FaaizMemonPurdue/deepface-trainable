@@ -14,6 +14,7 @@ from deepface.detectors import (
     YuNet,
 )
 from deepface.commons.logger import Logger
+import cv2
 
 logger = Logger(module="deepface/detectors/DetectorWrapper.py")
 
@@ -94,9 +95,17 @@ def detect_faces(
 
     # find facial areas of given image
     facial_areas = face_detector.detect_faces(img=img)
-
-    results = []
+    mc = 0
     for facial_area in facial_areas:
+        if facial_area.confidence > mc:
+            mc = facial_area.confidence
+    
+    results = []
+
+    for facial_area in facial_areas:
+        if facial_area.confidence < 0.95:
+            continue
+        
         x = facial_area.x
         y = facial_area.y
         w = facial_area.w
@@ -118,19 +127,46 @@ def detect_faces(
 
         # extract detected face unaligned
         detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
-
+        # cv2.imwrite("ca1.jpg", detected_face)
         # align original image, then find projection of detected face area after alignment
         if align is True:  # and left_eye is not None and right_eye is not None:
             aligned_img, angle = detection.align_face(
                 img=img, left_eye=left_eye, right_eye=right_eye
             )
+            # print(aligned_img.shape)
+
             rotated_x1, rotated_y1, rotated_x2, rotated_y2 = rotate_facial_area(
                 facial_area=(x, y, x + w, y + h), angle=angle, size=(img.shape[0], img.shape[1])
             )
-            detected_face = aligned_img[
-                int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
-            ]
 
+            # if rotated_y2 < rotated_y1: 
+            #     rotated_y2, rotated_y1 = rotated_y1, rotated_y2
+            # if rotated_x2 < rotated_x1: 
+            #     rotated_x2, rotated_x1 = rotated_x1, rotated_x2
+
+            ny1 = int(max(rotated_y1, 0))
+            ny2 = int(min(rotated_y2, aligned_img.shape[0]))
+            nx1 = int(max(rotated_x1, 0))
+            nx2 = int(min(rotated_x2, aligned_img.shape[1]))
+
+            if ny2 < ny1: 
+                ny2, ny1 = ny1, ny2
+            if nx2 < nx1: 
+                nx2, nx1 = nx1, nx2
+
+            ny1 = int(max(ny1, 0))
+            ny2 = int(min(ny2, aligned_img.shape[0]))
+            nx1 = int(max(nx1, 0))
+            nx2 = int(min(nx2, aligned_img.shape[1]))
+
+            hy = ny2-ny1
+            wx = nx2-nx1
+            if hy and wx and (max(hy, wx) / min(hy, wx) < 10):    
+                detected_face = aligned_img[
+                    ny1 : ny2, nx1 : nx2
+                ]
+            # print(detected_face.shape)
+        # cv2.imwrite("ca2.jpg", detected_face)
         result = DetectedFace(
             img=detected_face,
             facial_area=FacialAreaRegion(
