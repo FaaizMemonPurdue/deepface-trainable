@@ -103,7 +103,7 @@ def detect_faces(
     results = []
 
     for facial_area in facial_areas:
-        if facial_area.confidence < 0.95:
+        if facial_area.confidence < mc - 0.01:
             continue
         
         x = facial_area.x

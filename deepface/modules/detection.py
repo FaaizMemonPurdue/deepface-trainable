@@ -79,9 +79,9 @@ def extract_faces(
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
     img, img_name = preprocessing.load_image(img_path)
-
+    # img = cv2.imread(img_path)
     if img is None:
-        raise ValueError(f"Exception while loading {img_name}")
+        raise ValueError(f"{img_name} prolly not jpeg")
 
     base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0], confidence=0)
 
